@@ -1,0 +1,10 @@
+*.pyc
+*.egg-info/
+build/
+dist/
+.idea/.gitignore
+.idea/inspectionProfiles/
+.idea/mikrot8over.iml
+.idea/misc.xml
+.idea/modules.xml
+.idea/vcs.xml

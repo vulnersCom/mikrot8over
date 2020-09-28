@@ -15,7 +15,7 @@
 # Credits & Copyright: https://github.com/miladdiaz/MikrotikExploit
 
 __author__ = "Kir Ermakov <isox@vulners.com>"
-__version__ = "1.0"
+__version__ = "1.1"
 
 import texttable
 import socket
@@ -135,7 +135,7 @@ def scan_target(ip_address, port, timeout):
     return scan_results
 
 
-if __name__ == '__main__':
+def main():
     description = """
         Mikrotik exploit from Vault 7 CIA Leaks automation tool
         Takeovers up to RouterOS 6.38.4.
@@ -208,3 +208,6 @@ if __name__ == '__main__':
     else:
         # Any better solution here?
         print(output_table.draw().encode('ascii', 'ignore').decode())
+
+if __name__ == '__main__':
+    main()

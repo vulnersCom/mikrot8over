@@ -22,7 +22,6 @@ mikrot8over
 Command line Mikrotik exploitation tool.
 It's using Mikrotik exploit from Vault 7 CIA Leaks automation tool
 Takeovers up to RouterOS 6.38.4.
-Based on the https://github.com/miladdiaz/MikrotikExploit sample exploit.
 '''
 
 setup(
@@ -31,6 +30,7 @@ setup(
     version=version,
     description='Command line Mikrotik exploitation tool for RouterOS up to 6.38.4',
     long_description=long_description,
+    long_description_content_type="text/plain",
     license='MIT',
     url='https://github.com/vulnersCom/mikrot8over',
     author='Kir Ermakov',

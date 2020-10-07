@@ -154,7 +154,7 @@ def main():
                         help='Scan address or IPv4 network in CIDR format')
 
     # Arguments
-    addArgumentCall('-p', '--port', type=int, nargs="*", default=8291,
+    addArgumentCall('-p', '--port', type=int, nargs="*", default=[8291],
                     help='List of the port to scan. Default is 8291')
     addArgumentCall('-t', '--threads', nargs=1, type=int, default=10,
                     help='Number of scan threads. Default is 10 that fits the most of systems')
@@ -168,7 +168,7 @@ def main():
         options, args = parser.parse_args()
         address = " ".join(args)
 
-    port = options.port
+    ports = options.port
     threads = options.threads
     timeout = options.timeout
 
@@ -177,37 +177,38 @@ def main():
         print("No scan address provided. Exit.")
         exit()
 
-    print("Starting scan for IP %s, port %s running in %s threads" % (address, port, threads))
+    for port in ports:
+        print("Starting scan for IP %s, port %s running in %s threads" % (address, port, threads))
 
-    try:
-        targets = ipcalc.Network(address)
-        scan_args = ((str(ip), port, timeout) for ip in targets)
-    except ValueError as error:
-        print("Failed to parse network address %s with %s error" % (address, error))
-        exit()
+        try:
+            targets = ipcalc.Network(address)
+            scan_args = ((str(ip), port, timeout) for ip in targets)
+        except ValueError as error:
+            print("Failed to parse network address %s with %s error" % (address, error))
+            exit()
 
-    with concurrent.futures.ThreadPoolExecutor(max_workers=threads) as executor:
-        results = list(tqdm(executor.map(lambda p: scan_target(*p), scan_args), total=len(targets)))
+        with concurrent.futures.ThreadPoolExecutor(max_workers=threads) as executor:
+            results = list(tqdm(executor.map(lambda p: scan_target(*p), scan_args), total=len(targets)))
 
-    output_table = texttable.Texttable()
-    output_table.set_cols_dtype(['t', 't', 't'])
-    output_table.set_cols_align(['c', 'l', 'c'])
-    output_table.set_cols_width(['20', '30', '100'])
-    table_rows = [['IP', 'Login', 'Password']]
+        output_table = texttable.Texttable()
+        output_table.set_cols_dtype(['t', 't', 't'])
+        output_table.set_cols_align(['c', 'l', 'c'])
+        output_table.set_cols_width(['20', '30', '100'])
+        table_rows = [['IP', 'Login', 'Password']]
 
-    vulnerable_results = [result for result in results if result and result['users']]
+        vulnerable_results = [result for result in results if result and result['users']]
 
-    for data in vulnerable_results:
-        for credentials in data['users']:
-            if credentials[1]:
-                table_rows.append([data["ip_address"], credentials[0], credentials[1]])
-    output_table.add_rows(table_rows)
-    if not six.PY3:
-        # Just pass non-ascii
-        print(output_table.draw().encode('ascii', 'ignore'))
-    else:
-        # Any better solution here?
-        print(output_table.draw().encode('ascii', 'ignore').decode())
+        for data in vulnerable_results:
+            for credentials in data['users']:
+                if credentials[1]:
+                    table_rows.append([data["ip_address"], credentials[0], credentials[1]])
+        output_table.add_rows(table_rows)
+        if not six.PY3:
+            # Just pass non-ascii
+            print(output_table.draw().encode('ascii', 'ignore'))
+        else:
+            # Any better solution here?
+            print(output_table.draw().encode('ascii', 'ignore').decode())
 
 if __name__ == '__main__':
     main()
